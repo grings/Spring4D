@@ -997,6 +997,11 @@ begin
   Exit(leftLen - rightLen);
 end;
 
+function IsAsciiLetter(c: Char): Boolean; inline;
+begin
+  Result := Word(Ord(c) or $20 - Ord('a')) <= Ord('z') - Ord('a');
+end;
+
 function CompareStringIgnoreCase(left: PChar; leftLen: Integer; right: PChar; rightLen: Integer): Integer;
 label
   notAscii, foundMismatch;
@@ -1012,8 +1017,8 @@ begin
     c1 := left[i];
     c2 := right[i];
     if Ord(c1) or Ord(c2) > $7F then goto notAscii;
-    if (c1 <> c2) and ((Ord(c1) or $20) <> (Ord(c2) or $20))
-      and ((Ord(c1) or $20) - Ord('a') <= Ord('z') - Ord('a')) then goto foundMismatch;
+    // Ordinal equals or lowercase equals if the result ends up in the a-z range
+    if not ((c1 = c2) or ((Ord(c1) or $20 = Ord(c2) or $20) and IsAsciiLetter(c1))) then goto foundMismatch;
     Inc(i);
   until i >= len;
   Exit(leftLen - rightLen);
