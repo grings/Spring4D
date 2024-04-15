@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,11 +33,11 @@
 {$T-,X+,H+,B-}
 {$INLINE ON}
 
-//{$IFDEF DELPHIX_TOKYO_UP}
+{$IFDEF DELPHIX_TOKYO_UP}
 //  {$WARN IMPLICIT_INTEGER_CAST_LOSS ON}
 //  {$WARN IMPLICIT_CONVERSION_LOSS ON}
 //  {$WARN COMBINING_SIGNED_UNSIGNED64 ON}
-//{$ENDIF}
+{$ENDIF}
 
 {$IFDEF SUPPORTS_LEGACYIFEND}
   {$LEGACYIFEND ON}

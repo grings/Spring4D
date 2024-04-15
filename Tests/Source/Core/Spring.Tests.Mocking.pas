@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -47,6 +47,9 @@ type
     procedure TestVariant;
     procedure TestDynArray;
     procedure TestRecord;
+    procedure TestRecord2;
+    procedure TestDynArrayOfRec2;
+    procedure TestStaticArrayOfRec2;
     procedure TestRegex;
     procedure TestEnum;
     procedure TestSet;
@@ -60,6 +63,7 @@ type
 
     procedure ReturnsMultipleValues;
     procedure WrapperObjectsNotLeaking;
+    procedure ResetClearsProperly;
   end;
 
   ReceivedChecksForInputValueOfVarParams = class(TTestCase)
@@ -166,11 +170,48 @@ type
     Str: string;
   end;
 
+  TRec2 = record
+    obj: TObject;
+  end;
+
+  TRec2Array = array[0..1] of TRec2;
+
   TFoo = class
   public
     function Method(const rec: TRec): Integer; virtual; abstract;
+    function Method2(const rec: TRec2): Integer; virtual; abstract;
+    function DynArrayOfRec2(const rec: TArray<TRec2>): Integer; virtual; abstract;
+    function StaticArrayOfRec2(const rec: TRec2Array): Integer; virtual; abstract;
   end;
 
+  IObserver = interface(IInvokable)
+  end;
+
+  ISubject = interface(IInvokable)
+    procedure Attach(const observer: IObserver);
+    procedure Detach(const observer: IObserver);
+  end;
+
+  TService = class(TRefCountedObject, IObserver)
+  private
+    fSubject: ISubject;
+  public
+    constructor Create(const subject: ISubject);
+    destructor Destroy; override;
+  end;
+
+constructor TService.Create(const subject: ISubject);
+begin
+  fSubject := subject;
+  fSubject.Attach(Self);
+end;
+
+destructor TService.Destroy;
+begin
+  if Assigned(fSubject) then
+    fSubject.Detach(Self);
+  inherited;
+end;
 
 {$REGION 'TTestMRec'}
 
@@ -328,6 +369,23 @@ begin
   Pass;
 end;
 
+procedure TParameterMatchingTests.ResetClearsProperly;
+var
+  subject: Mock<ISubject>;
+  observer: IObserver;
+begin
+  subject.Behavior := TMockbehavior.Strict;
+  with subject.Setup do
+  begin
+    Executes.When(Args.Any).Attach(nil);
+    Executes.When(Args.Any).Detach(nil);
+  end;
+  observer := TService.Create(subject);
+  observer := nil;
+  subject.Free;
+  Pass;
+end;
+
 procedure TParameterMatchingTests.ReturnsMultipleValues;
 var
   mock: Mock<IChild>;
@@ -368,6 +426,18 @@ begin
   mock.Received(2).TestDynArray(Arg.IsAny<TArray<string>>);
   mock.Received(1).TestDynArray(nil);
   mock.Received(1).TestDynArray(arr);
+  Pass;
+end;
+
+procedure TParameterMatchingTests.TestDynArrayOfRec2;
+var
+  mock: Mock<TFoo>;
+  rec: TRec2;
+begin
+  rec.Obj := nil;
+  mock.Setup.Returns(42).When.DynArrayOfRec2(Arg.IsAny<TArray<TRec2>>);
+  CheckEquals(42, mock.Instance.DynArrayOfRec2(TArray<TRec2>.Create(rec)));
+  mock.Received(1).DynArrayOfRec2(Arg.IsAny<TArray<TRec2>>);
   Pass;
 end;
 
@@ -426,6 +496,18 @@ begin
   Pass;
 end;
 
+procedure TParameterMatchingTests.TestRecord2;
+var
+  mock: Mock<TFoo>;
+  rec: TRec2;
+begin
+  rec.Obj := nil;
+  mock.Setup.Returns(42).When.Method2(Arg.IsAny<TRec2>);
+  CheckEquals(42, mock.Instance.Method2(rec));
+  mock.Received(1).Method2(Arg.IsAny<TRec2>);
+  Pass;
+end;
+
 procedure TParameterMatchingTests.TestRegex;
 var
   mock: Mock<IMockTest>;
@@ -445,6 +527,19 @@ begin
   mock.Instance.TestSet(0, [1]);
   mock.Received(1).TestSet(0, [1]);
   mock.Received(0).TestSet(0, [2,3]);
+  Pass;
+end;
+
+procedure TParameterMatchingTests.TestStaticArrayOfRec2;
+var
+  mock: Mock<TFoo>;
+  arr: TRec2Array;
+begin
+  arr[0].Obj := nil;
+  arr[1].Obj := nil;
+  mock.Setup.Returns(42).When.StaticArrayOfRec2(Arg.IsAny<TRec2Array>);
+  CheckEquals(42, mock.Instance.StaticArrayOfRec2(arr));
+  mock.Received(1).StaticArrayOfRec2(Arg.IsAny<TRec2Array>);
   Pass;
 end;
 

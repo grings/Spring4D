@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -6978,7 +6978,6 @@ function GetElementType(typeInfo: PTypeInfo): PTypeInfo;
 implementation
 
 uses
-  Character,
   Rtti,
   Spring.Collections.Base,
   Spring.Collections.Dictionaries,

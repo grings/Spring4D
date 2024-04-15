@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,14 +34,10 @@ interface
 
 uses
   Classes,
-  StrUtils,
   SysUtils,
   TypInfo,
 {$IFDEF MSWINDOWS}
-  ComObj,
-  Messages,
   Registry,
-  ShellAPI,
   ShlObj,
   Windows,
   Spring.Utils.WinAPI,
@@ -1050,7 +1046,13 @@ uses
   Posix.Dlfcn,
   System.IOUtils,
 {$ENDIF POSIX}
+{$IFDEF MSWINDOWS}
+  ComObj,
+  Messages,
+  ShellAPI,
+{$ENDIF MSWINDOWS}
   Math,
+  StrUtils,
   Spring.ResourceStrings,
   Spring.SystemUtils;
 

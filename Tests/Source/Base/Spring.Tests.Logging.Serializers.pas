@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -70,12 +70,10 @@ type
     procedure TestInteger;
     procedure TestEnumeration;
     procedure TestFloat;
-{$IFNDEF NEXTGEN}
     procedure TestChar;
     procedure TestString;
     procedure TestLString;
     procedure TestWString;
-{$ENDIF}
     procedure TestSet;
     procedure TestWChar;
     procedure TestInt64;
@@ -249,7 +247,6 @@ begin
   CheckValue('[SerializedData]', TValue.From([TLogEventType.SerializedData]), tkSet);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSimpleTypeSerializer.TestChar;
 begin
   CheckValue('A', TValue.From(AnsiChar('A')), tkChar);
@@ -269,7 +266,6 @@ procedure TTestSimpleTypeSerializer.TestWString;
 begin
   CheckValue('test', TValue.From(WideString('test')), tkWString);
 end;
-{$ENDIF}
 
 procedure TTestSimpleTypeSerializer.TestUnsupported;
 begin
@@ -317,14 +313,7 @@ begin
       '  fString = test'#$A +
       '  PObject = (empty)'#$A +
       '  PString = test'#$A +
-      '  RefCount = ' +
-{$IFDEF NEXTGEN}
-      '3'#$A +
-      '  Disposed = False' +
-{$ELSE}
-      '0' +
-{$ENDIF}
-      ')';
+      '  RefCount = 0)';
   finally
     o.Free;
   end;
@@ -518,14 +507,7 @@ begin
     '  fString = '#$A +
     '  PObject = (empty)'#$A +
     '  PString = '#$A +
-    '  RefCount = ' +
-{$IFDEF NEXTGEN}
-      '5'#$A +
-      '  Disposed = False' +
-{$ELSE}
-      '3' +
-{$ENDIF}
-      ')';
+    '  RefCount = 3)';
   values := nil;
   CheckEquals('[1, text, ' + s + ']', result);
 end;

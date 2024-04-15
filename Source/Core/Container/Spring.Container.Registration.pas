@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -164,7 +164,6 @@ implementation
 
 uses
   Generics.Defaults,
-  SysUtils,
   TypInfo,
   Spring.Collections.Lists,
   Spring.Comparers,

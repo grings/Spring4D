@@ -34,7 +34,7 @@ unit Spring.Data.ExpressionParser;
 interface
 
 uses
-  SysUtils, Generics.Collections;
+  SysUtils;
 
 type
   TOnGetVariableValue = function(Sender: TObject; const VarName: string;
@@ -82,7 +82,7 @@ var
 implementation
 
 uses
-  Variants, Masks, StrUtils, Math, Classes, Spring;
+  Generics.Collections, Variants, Masks, Math, Classes, Spring;
 
   (*
 {$IFDEF COMPILER12_UP}

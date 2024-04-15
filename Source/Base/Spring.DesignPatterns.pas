@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -44,10 +44,8 @@ unit Spring.DesignPatterns;
 interface
 
 uses
-  Classes,
   SysUtils,
   SyncObjs,
-  TypInfo,
   Spring,
   Spring.Collections;
 
@@ -203,6 +201,9 @@ type
 implementation
 
 uses
+{$IF defined(DELPHIXE4) or defined(DELPHIXE5) or defined(DELPHIXE6)}
+  TypInfo, // H2443
+{$IFEND}
   Spring.ResourceStrings;
 
 

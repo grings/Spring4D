@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -254,23 +254,10 @@ procedure GetMethodTypeData(Method: TRttiMethod; var TypeData: PTypeData);
   end;
 
   procedure WritePackedShortString(var Dest: PByte; const s: string);
-{$IFNDEF NEXTGEN}
   begin
     PShortString(Dest)^ := ShortString(s);
     Inc(Dest, Dest[0] + 1);
   end;
-{$ELSE}
-  var
-    buffer: TBytes;
-  begin
-    buffer := TEncoding.ANSI.GetBytes(s);
-    if (Length(buffer) > 255) then SetLength(buffer, 255);
-    Dest^ := Length(buffer);
-    Inc(Dest);
-    Move(buffer[0], Dest^, Length(buffer));
-    Inc(Dest, Length(buffer));
-  end;
-{$ENDIF}
 
   procedure WritePointer(var Dest: PByte; p: Pointer);
   begin
@@ -408,7 +395,7 @@ var
 {$ENDIF}
 begin
   P := AdditionalInfoOf(typeData);
-  if TCallConv(PByte(p)^) <> ccReg then
+  if TCallConv(p^) <> ccReg then
     raise EInvalidOperationException.CreateRes(@SUnsupportedCallingConvention);
   ParamInfos := PParameterInfos(P + 1);
 

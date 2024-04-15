@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  Variants,
   Spring,
   Spring.Collections,
   Spring.Persistence.Core.EntityCache,
@@ -378,7 +377,7 @@ implementation
 
 class function TQueryMetadata.GetQueryType(const query: Variant): TQueryType;
 begin
-  case VarType(query) of
+  case TVarData(query).VType of
     varUString, varString, varStrArg, varOleStr: Result := qtQueryText
   else
     Result := qtQueryEntity;

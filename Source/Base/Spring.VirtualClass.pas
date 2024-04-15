@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -75,11 +75,7 @@ type
     FieldTable: PVmtFieldTable;
     MethodTable: PVmtMethodTable;
     DynamicTable: Pointer;
-{$IFNDEF NEXTGEN}
     ClassName: PShortString;
-{$ELSE}
-    ClassName: TTypeInfoFieldAccessor;
-{$ENDIF}
     InstanceSize: Integer;
     Parent: PClass;
 

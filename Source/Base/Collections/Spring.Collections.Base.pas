@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,7 +31,6 @@ interface
 uses
   Classes,
   Generics.Defaults,
-  SysUtils,
   TypInfo,
   Spring,
   Spring.Collections,
@@ -3516,8 +3515,8 @@ end;
 procedure THashMapInnerCollection.ToArray(var result: Pointer; typeInfo: Pointer; assign: TAssign);
 var
   hashTable: PHashTable;
-  item: PByte;
-  itemCount, itemSize, targetIndex, offset, count, elSize: NativeInt;
+  source, target: PByte;
+  i, itemSize, targetIndex, offset, count, elSize: NativeInt;
   collection: Pointer;
 begin
   if fCount = nil then
@@ -3527,19 +3526,18 @@ begin
     count := hashTable.Count;
     elSize := PDynArrayTypeInfo(PByte(typeInfo) + Byte(PDynArrayTypeInfo(typeInfo).name)).elSize;
     DynArraySetLength(result, typeInfo, 1, @count);
-    item := hashTable.Items;
-    itemCount := hashTable.ItemCount;
+    target := result;
+    if target = nil then Exit;
+    source := hashTable.Items;
     itemSize := hashTable.ItemSize;
-    targetIndex := 0;
-    while itemCount > 0 do
+    for i := 1 to hashTable.ItemCount do
     begin
-      if PInteger(item)^ >= 0 then
+      if PInteger(source)^ >= 0 then
       begin
-        assign(PByte(result)[targetIndex * elSize], item[offset]);
-        Inc(targetIndex);
+        assign(target^, source[offset]);
+        Inc(target, elSize);
       end;
-      Inc(item, itemSize);
-      Dec(itemCount);
+      Inc(source, itemSize);
     end;
   end
   else
@@ -3547,20 +3545,19 @@ begin
     hashTable := fHashTable;
     count := fCount^;
     DynArraySetLength(result, typeInfo, 1, @count);
-    item := hashTable.Items;
-    itemCount := hashTable.ItemCount;
+    if result = nil then Exit;
+    source := hashTable.Items;
     itemSize := hashTable.ItemSize;
     targetIndex := 0;
-    while itemCount > 0 do
+    for i := 1 to hashTable.ItemCount do
     begin
-      if PInteger(item)^ >= 0 then
+      if PInteger(source)^ >= 0 then
       begin
-        collection := PPointer(item + itemSize - SizeOf(Pointer))^;
+        collection := PPointer(source + itemSize - SizeOf(Pointer))^;
         // little hack - we can hardcast here since we are just passing along a dynamic array
-        Inc(targetIndex, ICollection<Pointer>(collection).CopyTo(TArray<Pointer>(Result), targetIndex));
+        Inc(targetIndex, ICollection<Pointer>(collection).CopyTo(TArray<Pointer>(result), targetIndex));
       end;
-      Inc(item, itemSize);
-      Dec(itemCount);
+      Inc(source, itemSize);
     end;
   end;
 end;

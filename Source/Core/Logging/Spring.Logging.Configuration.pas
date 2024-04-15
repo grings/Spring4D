@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -32,7 +32,6 @@ uses
   SysUtils,
   TypInfo,
   Classes,
-  Rtti,
   Spring,
   Spring.Collections,
   Spring.Container;
@@ -101,6 +100,7 @@ implementation
 uses
   IniFiles,
   RTLConsts,
+  Rtti,
   Spring.Reflection,
   Spring.Container.Common,
   Spring.Container.Registration,
@@ -343,7 +343,7 @@ function TConfigurationReader.GetType(const className: string;
 begin
   Guard.CheckNotNull(className <> '', SClass);
   //Both fully qualified and just class name supported
-  TRttiType(Result) := TType.FindType(className);
+  Result := TType.FindType(className);
   if (Result = nil) or (needInstance and (not Result.IsInstance)) then
     raise EClassNotFound.CreateResFmt(@SClassNotFound, [className]);
 end;

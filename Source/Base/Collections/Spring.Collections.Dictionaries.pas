@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -149,7 +149,6 @@ type
     ValueHashCode: Integer;
     Key: TKey;
     Value: TValue;
-    function Removed: Boolean; inline;
   end;
 
   TBidiDictionary<TKey, TValue> = class(TMapBase<TKey, TValue>, IInterface,
@@ -543,7 +542,6 @@ procedure ValidateParams(keyType, valueType: PTypeInfo; capacity: Integer; owner
 implementation
 
 uses
-  SysUtils,
   Types,
   TypInfo,
   Spring.Comparers,
@@ -735,16 +733,19 @@ var
 begin
   SetLength(Result, fHashTable.Count);
   target := Pointer(Result);
-  source := PItem(fHashTable.Items);
-  for i := 1 to fHashTable.ItemCount do //FI:W528
+  if Assigned(target) then
   begin
-    if source.HashCode >= 0 then
+    source := PItem(fHashTable.Items);
+    for i := 1 to fHashTable.ItemCount do //FI:W528
     begin
-      target.Key := source.Key;
-      target.Value := source.Value;
-      Inc(target);
+      if source.HashCode >= 0 then
+      begin
+        target.Key := source.Key;
+        target.Value := source.Value;
+        Inc(target);
+      end;
+      Inc(source);
     end;
-    Inc(source);
   end;
 end;
 
@@ -1049,16 +1050,6 @@ begin
   item := fItem;
   Result.Key := item.Key;
   Result.Value := item.Value;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'TBidiDictionaryItem<TKey, TValue>' }
-
-function TBidiDictionaryItem<TKey, TValue>.Removed: Boolean;
-begin
-  Result := KeyHashCode < 0;
 end;
 
 {$ENDREGION}
@@ -1491,8 +1482,9 @@ end;
 
 procedure TBidiDictionary<TKey, TValue>.Clear;
 var
-  oldItemIndex, oldItemCount: Integer;
+  oldItemCount, i: Integer;
   oldItems: TArray<TItem>;
+  item: PItem;
 begin
   oldItemCount := fItemCount;
   oldItems := fItems;
@@ -1507,14 +1499,18 @@ begin
   fItems := nil;
   SetCapacity(0);
 
-  for oldItemIndex := 0 to oldItemCount - 1 do
-    if not oldItems[oldItemIndex].Removed then
+  item := Pointer(oldItems);
+  for i := 1 to oldItemCount do
+  begin
+    if item.KeyHashCode >= 0 then
     begin
       if Assigned(Notify) then
-        DoNotify(oldItems[oldItemIndex].Key, oldItems[oldItemIndex].Value, caRemoved);
-      KeyChanged(oldItems[oldItemIndex].Key, caRemoved);
-      ValueChanged(oldItems[oldItemIndex].Value, caRemoved);
+        DoNotify(item.Key, item.Value, caRemoved);
+      KeyChanged(item.Key, caRemoved);
+      ValueChanged(item.Value, caRemoved);
     end;
+    Inc(item);
+  end;
 end;
 
 function TBidiDictionary<TKey, TValue>.Contains(const value: TKeyValuePair;
@@ -1528,17 +1524,26 @@ end;
 
 function TBidiDictionary<TKey, TValue>.ToArray: TArray<TKeyValuePair>;
 var
-  sourceIndex, targetIndex: Integer;
+  target: ^TKeyValuePair;
+  source: PItem;
+  i: Integer;
 begin
   SetLength(Result, fCount);
-  targetIndex := 0;
-  for sourceIndex := 0 to fItemCount - 1 do
-    if not fItems[sourceIndex].Removed then
+  target := Pointer(Result);
+  if Assigned(target) then
+  begin
+    source := Pointer(fItems);
+    for i := 1 to fItemCount do
     begin
-      Result[targetIndex].Key := fItems[sourceIndex].Key;
-      Result[targetIndex].Value := fItems[sourceIndex].Value;
-      Inc(targetIndex);
+      if source.KeyHashCode >= 0 then
+      begin
+        target.Key := source.Key;
+        target.Value := source.Value;
+        Inc(target);
+      end;
+      Inc(source);
     end;
+  end;
 end;
 
 function TBidiDictionary<TKey, TValue>.GetCount: Integer;
@@ -2073,17 +2078,28 @@ end;
 
 function TBidiDictionary<TKey, TValue>.TInverse.ToArray: TArray<TValueKeyPair>;
 var
-  sourceIndex, targetIndex: Integer;
+  dict: TBidiDictionary<TKey, TValue>;
+  target: ^TValueKeyPair;
+  source: PItem;
+  i: Integer;
 begin
-  SetLength(Result, fSource.fCount);
-  targetIndex := 0;
-  for sourceIndex := 0 to fSource.fItemCount - 1 do
-    if not fSource.fItems[sourceIndex].Removed then
+  dict := fSource;
+  SetLength(Result, dict.fCount);
+  target := Pointer(Result);
+  if Assigned(target) then
+  begin
+    source := Pointer(dict.fItems);
+    for i := 1 to dict.fItemCount do
     begin
-      Result[targetIndex].Key := fSource.fItems[sourceIndex].Value;
-      Result[targetIndex].Value := fSource.fItems[sourceIndex].Key;
-      Inc(targetIndex);
+      if source.KeyHashCode >= 0 then
+      begin
+        target.Key := source.Value;
+        target.Value := source.Key;
+        Inc(target);
+      end;
+      Inc(source);
     end;
+  end;
 end;
 
 procedure TBidiDictionary<TKey, TValue>.TInverse.TrimExcess;
@@ -2255,16 +2271,27 @@ end;
 
 function TBidiDictionary<TKey, TValue>.TKeyCollection.ToArray: TArray<TKey>;
 var
-  sourceIndex, targetIndex: Integer;
+  dict: TBidiDictionary<TKey, TValue>;
+  target: ^TKey;
+  source: PItem;
+  i: Integer;
 begin
-  SetLength(Result, fSource.fCount);
-  targetIndex := 0;
-  for sourceIndex := 0 to fSource.fItemCount - 1 do
-    if not fSource.fItems[sourceIndex].Removed then
+  dict := fSource;
+  SetLength(Result, dict.fCount);
+  target := Pointer(Result);
+  if Assigned(target) then
+  begin
+    source := Pointer(dict.fItems);
+    for i := 1 to dict.fItemCount do
     begin
-      Result[targetIndex] := fSource.fItems[sourceIndex].Key;
-      Inc(targetIndex);
+      if source.KeyHashCode >= 0 then
+      begin
+        target^ := source.Key;
+        Inc(target);
+      end;
+      Inc(source);
     end;
+  end;
 end;
 
 function TBidiDictionary<TKey, TValue>.TKeyCollection.TryGetElementAt(
@@ -2327,16 +2354,27 @@ end;
 
 function TBidiDictionary<TKey, TValue>.TValueCollection.ToArray: TArray<TValue>;
 var
-  sourceIndex, targetIndex: Integer;
+  dict: TBidiDictionary<TKey, TValue>;
+  target: ^TValue;
+  source: PItem;
+  i: Integer;
 begin
-  SetLength(Result, fSource.fCount);
-  targetIndex := 0;
-  for sourceIndex := 0 to fSource.fItemCount - 1 do
-    if not fSource.fItems[sourceIndex].Removed then
+  dict := fSource;
+  SetLength(Result, dict.fCount);
+  target := Pointer(Result);
+  if Assigned(target) then
+  begin
+    source := Pointer(dict.fItems);
+    for i := 1 to dict.fItemCount do
     begin
-      Result[targetIndex] := fSource.fItems[sourceIndex].Value;
-      Inc(targetIndex);
+      if source.KeyHashCode >= 0 then
+      begin
+        target^ := source.Value;
+        Inc(target);
+      end;
+      Inc(source);
     end;
+  end;
 end;
 
 function TBidiDictionary<TKey, TValue>.TValueCollection.TryGetElementAt(
@@ -2476,8 +2514,18 @@ begin
         Notify(Self, PKeyValuePair(@PNode(node).Key)^, caRemoved);
       with fOnKeyChanged do if CanInvoke then
         Invoke(Self, PNode(node).Key, caRemoved);
+    {$IFDEF DELPHIXE7_UP}
+      if GetTypeKind(TKey) = tkClass then
+    {$ENDIF}
+      if doOwnsKeys in fOwnerships then
+        PObject(@PNode(node).Key).Free;
       with fOnValueChanged do if CanInvoke then
         Invoke(Self, PNode(node).Value, caRemoved);
+    {$IFDEF DELPHIXE7_UP}
+      if GetTypeKind(TValue) = tkClass then
+    {$ENDIF}
+      if doOwnsValues in fOwnerships then
+        PObject(@PNode(node).Value).Free;
       next := node.Next;
     until not Assigned(next);
 

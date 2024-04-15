@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -827,16 +827,16 @@ begin
   comparer := _LookupVtableInfo(giComparer, valueType, SizeOf(TValue));
   {$IFDEF DELPHIXE7_UP}
   case GetTypeKind(TValue) of
-    tkClass: TCollectionsHelper.CreateList_Object(Pointer(comparer), False, Result, valueType);
-    tkInterface: TCollectionsHelper.CreateList_Interface(Pointer(comparer), Result, valueType);
-    tkUString: TCollectionsHelper.CreateList_String(Pointer(comparer), Result, valueType);
-    tkMethod: TCollectionsHelper.CreateList_Method(Pointer(comparer), Result, valueType);
+    tkClass: TCollectionsHelper.CreateList_Object(comparer, False, Result, valueType);
+    tkInterface: TCollectionsHelper.CreateList_Interface(comparer, Result, valueType);
+    tkUString: TCollectionsHelper.CreateList_String(comparer, Result, valueType);
+    tkMethod: TCollectionsHelper.CreateList_Method(comparer, Result, valueType);
     tkInteger, tkChar, tkWChar, tkEnumeration, tkInt64, tkClassRef, tkPointer, tkProcedure:
       case SizeOf(TValue) of
-        1: TCollectionsHelper.CreateList_Int8(Pointer(comparer), Result, valueType);
-        2: TCollectionsHelper.CreateList_Int16(Pointer(comparer), Result, valueType);
-        4: TCollectionsHelper.CreateList_Int32(Pointer(comparer), Result, valueType);
-        8: TCollectionsHelper.CreateList_Int64(Pointer(comparer), Result, valueType);
+        1: TCollectionsHelper.CreateList_Int8(comparer, Result, valueType);
+        2: TCollectionsHelper.CreateList_Int16(comparer, Result, valueType);
+        4: TCollectionsHelper.CreateList_Int32(comparer, Result, valueType);
+        8: TCollectionsHelper.CreateList_Int64(comparer, Result, valueType);
       end;
   else{$ELSE}begin{$ENDIF}
     Result := TList<TValue>.Create(IComparer<TValue>(comparer));
@@ -1290,16 +1290,16 @@ begin
   comparer := _LookupVtableInfo(giComparer, valueType, SizeOf(TValue));
   {$IFDEF DELPHIXE7_UP}
   case GetTypeKind(TValue) of
-    tkClass: TCollectionsHelper.CreateList_Object(Pointer(comparer), False, Result, valueType);
-    tkInterface: TCollectionsHelper.CreateList_Interface(Pointer(comparer), Result, valueType);
-    tkUString: TCollectionsHelper.CreateList_String(Pointer(comparer), Result, valueType);
-    tkMethod: TCollectionsHelper.CreateList_Method(Pointer(comparer), Result, valueType);
+    tkClass: TCollectionsHelper.CreateList_Object(comparer, False, Result, valueType);
+    tkInterface: TCollectionsHelper.CreateList_Interface(comparer, Result, valueType);
+    tkUString: TCollectionsHelper.CreateList_String(comparer, Result, valueType);
+    tkMethod: TCollectionsHelper.CreateList_Method(comparer, Result, valueType);
     tkInteger, tkChar, tkWChar, tkEnumeration, tkInt64, tkClassRef, tkPointer, tkProcedure:
       case SizeOf(TValue) of
-        1: TCollectionsHelper.CreateList_Int8(Pointer(comparer), Result, valueType);
-        2: TCollectionsHelper.CreateList_Int16(Pointer(comparer), Result, valueType);
-        4: TCollectionsHelper.CreateList_Int32(Pointer(comparer), Result, valueType);
-        8: TCollectionsHelper.CreateList_Int64(Pointer(comparer), Result, valueType);
+        1: TCollectionsHelper.CreateList_Int8(comparer, Result, valueType);
+        2: TCollectionsHelper.CreateList_Int16(comparer, Result, valueType);
+        4: TCollectionsHelper.CreateList_Int32(comparer, Result, valueType);
+        8: TCollectionsHelper.CreateList_Int64(comparer, Result, valueType);
       end;
   else{$ELSE}begin{$ENDIF}
     Result := TList<TValue>.Create(IComparer<TValue>(comparer));

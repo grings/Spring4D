@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,8 +29,7 @@ unit Spring.Data.ExpressionParser.Functions;
 interface
 
 uses
-  Spring.Collections,
-  SysUtils;
+  Spring.Collections;
 
 type
   TGetValueFunc = reference to function(const args: Variant): Variant;
@@ -55,6 +54,7 @@ uses
   DateUtils,
   Math,
   StrUtils,
+  SysUtils,
   Variants,
   Spring;
 

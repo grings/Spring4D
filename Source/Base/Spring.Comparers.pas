@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -95,7 +95,6 @@ uses
   Math,
   SyncObjs,
   SysUtils,
-  Variants,
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
@@ -316,12 +315,12 @@ end;
 
 class function TComparer<T>.Default: IComparer<T>;
 begin
-  Result := IComparer<T>(_LookupVtableInfo(giComparer, TypeInfo(T), Integer(SizeOf(T))));
+  Result := IComparer<T>(_LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T)));
 end;
 
 class function TEqualityComparer<T>.Default: IEqualityComparer<T>;
 begin
-  Result := IEqualityComparer<T>(_LookupVtableInfo(giEqualityComparer, TypeInfo(T), Integer(SizeOf(T))));
+  Result := IEqualityComparer<T>(_LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T)));
 end;
 
 type
@@ -998,6 +997,11 @@ begin
   Exit(leftLen - rightLen);
 end;
 
+function IsAsciiLetter(c: Char): Boolean; inline;
+begin
+  Result := Word(Ord(c) or $20 - Ord('a')) <= Ord('z') - Ord('a');
+end;
+
 function CompareStringIgnoreCase(left: PChar; leftLen: Integer; right: PChar; rightLen: Integer): Integer;
 label
   notAscii, foundMismatch;
@@ -1013,8 +1017,8 @@ begin
     c1 := left[i];
     c2 := right[i];
     if Ord(c1) or Ord(c2) > $7F then goto notAscii;
-    if (c1 <> c2) and ((Ord(c1) or $20) <> (Ord(c2) or $20))
-      and ((Ord(c1) or $20) - Ord('a') <= Ord('z') - Ord('a')) then goto foundMismatch;
+    // Ordinal equals or lowercase equals if the result ends up in the a-z range
+    if not ((c1 = c2) or ((Ord(c1) or $20 = Ord(c2) or $20) and IsAsciiLetter(c1))) then goto foundMismatch;
     Inc(i);
   until i >= len;
   Exit(leftLen - rightLen);
@@ -2373,7 +2377,7 @@ end;
 class operator TStringComparer.TOrdinalCaseSensitiveStringComparer.Implicit(
   const value: TOrdinalCaseSensitiveStringComparer): IEqualityComparer<string>;
 begin
-  Result := IEqualityComparer<string>(_LookupVtableInfo(giEqualityComparer, TypeInfo(string), Integer(SizeOf(string))));
+  Result := IEqualityComparer<string>(_LookupVtableInfo(giEqualityComparer, TypeInfo(string), SizeOf(string)));
 end;
 
 function Equals_TypeInfo(const inst: Pointer; const left, right: PPTypeInfo): Boolean;

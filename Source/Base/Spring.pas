@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -50,8 +50,7 @@ uses
   SysUtils,
   TimeSpan,
   Types,
-  TypInfo,
-  Variants;
+  TypInfo;
 
 
   {$REGION 'Interface helper routines'}
@@ -1508,12 +1507,10 @@ type
     class procedure CheckRange<T>(const buffer: array of T; index, count: Integer); overload; static;
     class procedure CheckRange(const s: string; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: string; index, count: Integer); overload; static; inline;
-{$IFNDEF NEXTGEN}
     class procedure CheckRange(const s: WideString; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: WideString; index, count: Integer); overload; static; inline;
     class procedure CheckRange(const s: RawByteString; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: RawByteString; index, count: Integer); overload; static; inline;
-{$ENDIF}
     class procedure CheckRange(condition: Boolean; const argumentName: string); overload; static; inline;
     class procedure CheckRange(length, index, count: Integer; indexBase: Integer = 0); overload; static; inline;
 
@@ -1820,10 +1817,8 @@ type
   end;
 
   TNullableString = Nullable<string>;
-{$IFNDEF NEXTGEN}
   TNullableAnsiString = Nullable<AnsiString>;
   TNullableWideString = Nullable<WideString>;
-{$ENDIF}
   TNullableInteger = Nullable<Integer>;
   TNullableInt64 = Nullable<Int64>;
   TNullableNativeInt = Nullable<NativeInt>;
@@ -1839,7 +1834,7 @@ type
   TNullableHelper = record
   strict private
     fValueType: PTypeInfo;
-    fHasValueOffset: Byte;
+    fHasValueOffset: NativeInt;
     fHasValueKind: TTypeKind;
   public
     constructor Create(typeInfo: PTypeInfo);
@@ -3412,9 +3407,12 @@ uses
   System.Hash,
 {$ENDIF}
   Math,
+{$IFNDEF DELPHIX_BERLIN_UP}
   RTLConsts,
+{$ENDIF}
   StrUtils,
   SysConst,
+  Variants,
   VarUtils,
 {$IFDEF POSIX}
   Posix.Pthread,
@@ -4130,10 +4128,8 @@ const
     SizeOf(Currency){8});
 begin
   case typeInfo.Kind of
-{$IFNDEF NEXTGEN}
     tkChar:
       Result := SizeOf(AnsiChar){1};
-{$ENDIF}
     tkWChar:
       Result := SizeOf(WideChar){2};
     tkInteger, tkEnumeration:
@@ -4838,10 +4834,8 @@ begin
     tkVariant:
       Result := True;
 {$IFEND}
-{$IFNDEF NEXTGEN}
     tkString:
       Result := GetTypeData(TypeInfo)^.MaxLength > SizeOf(Pointer);
-{$ENDIF}
 {$IF declared(tkMRecord)}
     tkMRecord:
       Result := True;
@@ -5099,30 +5093,17 @@ end;
 class function TEnum.GetNames<T>: TStringDynArray;
 var
   typeData: PTypeData;
-{$IFDEF NEXTGEN}
-  p: TTypeInfoFieldAccessor;
-{$ELSE}
   p: PShortString;
-{$ENDIF}
   i: NativeInt;
 begin
   Guard.CheckTypeKind<T>(tkEnumeration, 'T');
   typeData := GetTypeData(TypeInfo(T));
   SetLength(Result, typeData.MaxValue - typeData.MinValue + 1);
-{$IFDEF NEXTGEN}
-  p := typedata^.NameListFld;
-{$ELSE}
   p := @typedata.NameList;
-{$ENDIF}
   for i := Low(Result) to High(Result) do
   begin
-{$IFDEF NEXTGEN}
-    Result[i] := p.ToString;
-    p.SetData(p.Tail);
-{$ELSE}
     Result[i] := UTF8ToString(p^);
     Inc(PByte(p), Length(p^) + 1);
-{$ENDIF}
   end;
 end;
 
@@ -5361,10 +5342,8 @@ begin
         otUWord: defaultField := TDefaultField<Word>.Create(offset, value);
         otULong: defaultField := TDefaultField<Cardinal>.Create(offset, value);
       end;
-    {$IFNDEF NEXTGEN}
     tkChar:
       defaultField  := TDefaultField<AnsiChar>.Create(offset, value);
-    {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
         defaultField := TDefaultField<TDateTime>.Create(offset, StrToDateTime(value, ISO8601FormatSettings))
@@ -5382,10 +5361,8 @@ begin
         end;
     tkWChar:
       defaultField := TDefaultField<Char>.Create(offset, value);
-    {$IFNDEF NEXTGEN}
     tkWString:
       defaultField := TDefaultField<WideString>.Create(offset, value);
-    {$ENDIF}
     tkVariant:
       defaultField := TDefaultField<Variant>.Create(offset, value);
     tkInt64:
@@ -5422,10 +5399,8 @@ begin
         otUWord: defaultField := TDefaultProperty<Word>.Create(propInfo, value);
         otULong: defaultField := TDefaultProperty<Cardinal>.Create(propInfo, value);
       end;
-    {$IFNDEF NEXTGEN}
     tkChar:
       defaultField  := TDefaultProperty<AnsiChar>.Create(propInfo, value);
-    {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
         defaultField := TDefaultProperty<TDateTime>.Create(propInfo, StrToDateTime(value, ISO8601FormatSettings))
@@ -5443,10 +5418,8 @@ begin
         end;
     tkWChar:
       defaultField := TDefaultProperty<Char>.Create(propInfo, value);
-    {$IFNDEF NEXTGEN}
     tkWString:
       defaultField := TDefaultProperty<WideString>.Create(propInfo, value);
-    {$ENDIF}
     tkVariant:
       defaultField := TDefaultProperty<Variant>.Create(propInfo, value);
     tkInt64:
@@ -6535,9 +6508,7 @@ begin
     varLongWord: Result := TVarData(value).VLongWord;
     varInt64: Result := TVarData(value).VInt64;
     varUInt64: Result := TVarData(value).VUInt64;
-{$IFNDEF NEXTGEN}
     varString: Result := string(AnsiString(TVarData(value).VString));
-{$ENDIF}
     varUString: Result := UnicodeString(TVarData(value).VUString);
   else
     if TVarData(value).VType and varArray = varArray then
@@ -6586,7 +6557,7 @@ begin
 {$IF Declared(ShortString)}
     vtString: Result := string(value.VString^);
 {$IFEND}
-    vtPointer: Result := value.VPointer;
+    vtPointer: Result := TValue.From(value.VPointer, System.TypeInfo(Pointer));
 {$IF Declared(PAnsiChar)}
     vtPChar: Result := string(value.VPChar);
 {$IFEND}
@@ -7883,9 +7854,7 @@ type
   protected
     FHandle: Pointer;
     FRttiDataSize: Integer;
-    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
     FPackage: TRttiPackage;
-    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
     FParent: TRttiObject;
   end;
 
@@ -8468,7 +8437,6 @@ begin
     Guard.RaiseArgumentOutOfRangeException(ValueArgName);
 end;
 
-{$IFNDEF NEXTGEN}
 class procedure Guard.CheckRange(const s: WideString; index: Integer);
 begin
   Guard.CheckIndex(Length(s), index, 1);
@@ -8488,7 +8456,6 @@ class procedure Guard.CheckRange(const s: RawByteString; index, count: Integer);
 begin
   Guard.CheckRange(Length(s), index, count, 1);
 end;
-{$ENDIF}
 
 class procedure Guard.CheckTypeKind(typeInfo: PTypeInfo;
   expectedTypeKind: TTypeKind; const argumentName: string);
@@ -8943,7 +8910,7 @@ begin
   fValueType := field.Field.TypeRef^;
   // get TTypeData.RecFields[1]
   field := PRecordTypeField(PByte(SkipShortString(@field.Name)) + SizeOf(TAttrData));
-  fHasValueOffset := Byte(field.Field.FldOffset);
+  fHasValueOffset := field.Field.FldOffset;
   fHasValueKind := field.Field.TypeRef^.Kind;
 end;
 
@@ -9778,15 +9745,6 @@ begin
   if count = 0 then Exit;
   if PByte(target) < PByte(source) then
     case PTypeInfo(typeInfo).Kind of
-{$IFDEF WEAKINSTREF}
-      tkMethod:
-        repeat
-          PMethodPointer(target)^ := PMethodPointer(source)^;
-          Inc(PByte(target), SizeOf(TMethod));
-          Inc(PByte(source), SizeOf(TMethod));
-          Dec(count);
-        until count = 0;
-{$ENDIF}
       tkLString:
         repeat
           PAnsiString(target)^ := PAnsiString(source)^;
@@ -9847,7 +9805,7 @@ begin
         until count = 0;
       tkDynArray:
         repeat
-          DynArrayAssign(target, source, typeInfo);
+          DynArrayAssign(PPointer(target)^, PPointer(source)^, typeInfo);
           Inc(PByte(target), SizeOf(Pointer));
           Inc(PByte(source), SizeOf(Pointer));
           Dec(count);
@@ -9855,20 +9813,6 @@ begin
     end
   else
     case PTypeInfo(typeInfo).Kind of
-{$IFDEF WEAKINSTREF}
-      tkMethod:
-      begin
-        n := (count - 1) * SizeOf(TMethod);
-        Inc(PByte(target), n);
-        Inc(PByte(source), n);
-        repeat
-          PMethodPointer(target)^ := PMethodPointer(source)^;
-          Dec(PByte(target), SizeOf(TMethod));
-          Dec(PByte(source), SizeOf(TMethod));
-          Dec(count);
-        until count = 0;
-      end;
-{$ENDIF}
       tkLString:
       begin
         n := (count - 1) * SizeOf(Pointer);
@@ -9964,7 +9908,7 @@ begin
         Inc(PByte(target), n);
         Inc(PByte(source), n);
         repeat
-          DynArrayAssign(target, source, typeInfo);
+          DynArrayAssign(PPointer(target)^, PPointer(source)^, typeInfo);
           Dec(PByte(target), SizeOf(Pointer));
           Dec(PByte(source), SizeOf(Pointer));
           Dec(count);
@@ -10298,11 +10242,7 @@ end;
 
 function TTypeInfoHelper.TypeName: string;
 begin
-{$IFNDEF NEXTGEN}
   Result := UTF8ToString(Name);
-{$ELSE}
-  Result := NameFld.ToString;
-{$ENDIF}
 end;
 
 function TTypeInfoHelper.TypeSize: Integer;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,7 +29,6 @@ unit Spring.Collections.LinkedLists;
 interface
 
 uses
-  Generics.Defaults,
   Spring,
   Spring.Collections,
   Spring.Collections.Base;
@@ -113,6 +112,7 @@ type
 implementation
 
 uses
+  Generics.Defaults,
   Spring.Collections.Events,
   Spring.Comparers,
   Spring.ResourceStrings;

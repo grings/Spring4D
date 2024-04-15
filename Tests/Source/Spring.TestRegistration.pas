@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -251,9 +251,7 @@ begin
 
     RegisterTests('Spring.Base.Reflection.ValueConverters', [
       TTestFromString.Suite,
-  {$IFNDEF NEXTGEN}
       TTestFromWideString.Suite,
-  {$ENDIF}
       TTestFromInteger.Suite,
       TTestFromCardinal.Suite,
       TTestFromSmallInt.Suite,

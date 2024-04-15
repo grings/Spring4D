@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,9 +29,13 @@ unit Spring.VirtualInterface;
 interface
 
 uses
+{$IFDEF DELPHIXE}
   Generics.Collections,
+{$ENDIF}
   Rtti,
+{$IFDEF DELPHIXE}
   TypInfo,
+{$ENDIF}
   Spring.MethodIntercept;
 
 type
@@ -76,14 +80,14 @@ implementation
 
 uses
 {$IFDEF DELPHIXE}
+  RTLConsts,
   Spring,
   Spring.Patches.GetInvokeInfo,
   Spring.Patches.QC93646,
   Spring.Patches.QC98671,
   Spring.Patches.QC107219,
 {$ENDIF}
-  Spring.Patches.RSP13163,
-  RTLConsts;
+  Spring.Patches.RSP13163;
 
 
 {$REGION 'TVirtualInterface'}

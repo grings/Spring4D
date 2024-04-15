@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,7 +31,6 @@ interface
 uses
   Classes,
   Generics.Defaults,
-  SysUtils,
   Types,
   Spring,
   Spring.Collections,
@@ -968,6 +967,7 @@ implementation
 
 uses
   Rtti,
+  SysUtils,
   TypInfo,
   Spring.Comparers,
   Spring.ResourceStrings;

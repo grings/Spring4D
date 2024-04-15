@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  SysUtils,
   Spring,
   Spring.Collections;
 
@@ -130,13 +129,14 @@ type
     class operator Implicit(const value: TAny): string; overload;
   end;
 
-procedure CleanupArguments(const arguments: TArray<TValue>);
+procedure CleanupArguments(const arguments: array of TValue);
 
 implementation
 
 uses
   Generics.Defaults,
   RegularExpressions,
+  SysUtils,
   TypInfo,
   Spring.ResourceStrings;
 
@@ -240,12 +240,10 @@ begin
       Assert(index <= 9); // only support up to index 9 for a Char
       PWideChar(@Result)^ := s[1];
     end;
-{$IFNDEF NEXTGEN}
     tkLString:
       PAnsiString(@Result)^ := AnsiString(s);
     tkWString:
       PWideString(@Result)^ := s;
-{$ENDIF}
     tkUString:
       PUnicodeString(@Result)^ := s;
   end;
@@ -300,16 +298,37 @@ begin
   PVariant(@Result)^ := index;
 end;
 
-procedure CleanupArguments(const arguments: TArray<TValue>);
+procedure CleanupArguments(const arguments: array of TValue);
+type
+  PValueData = ^TValueData;
 var
   i: Integer;
+  fields: TArray<TRttiField>;
+  value: TValue;
 begin
   for i := 0 to High(arguments) do
     if arguments[i].IsType(TypeInfo(TIndexWrapper)) then
     begin
       TObject(TValueData(arguments[i]).FAsObject).Free;
-      TValueData(arguments[i]).FAsObject := nil;
-    end;
+      PValueData(@arguments[i]).FAsObject := nil;
+    end else
+      case arguments[i].Kind of
+        tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
+        begin
+          fields := TType.GetType(arguments[i].TypeInfo).GetFields;
+          if fields = nil then
+            Continue;
+          value := fields[0].GetValue(arguments[i].GetReferenceToRawData);
+          CleanupArguments(value);
+        end;
+        tkArray, tkDynArray:
+        begin
+          if arguments[i].GetArrayLength = 0 then
+            Continue;
+          value := arguments[i].GetArrayElement(0);
+          CleanupArguments(value);
+        end;
+      end;
 end;
 
 

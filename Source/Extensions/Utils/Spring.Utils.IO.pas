@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2023 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,8 +35,6 @@ uses
   SysUtils,
 {$IFDEF MSWINDOWS}
   ActiveX,
-  ComObj,
-  ShellAPI,
   Windows,
 {$ENDIF MSWINDOWS}
   Spring,
@@ -851,6 +849,8 @@ implementation
 uses
   IOUtils,
 {$IFDEF MSWINDOWS}
+  ComObj,
+  ShellAPI,
   Spring.Utils.WinAPI,
 {$ENDIF MSWINDOWS}
   Spring.Collections.Extensions,
