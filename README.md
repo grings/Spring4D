@@ -13,7 +13,7 @@ Alternatively open the project group in your IDE and compile the packages. Add t
 
 Current version
 ---------------
-2.0 (11.11.2023)
+2.0.1 (15.04.2024)
 
 Known issues
 ------------
@@ -26,4 +26,4 @@ Please support us
 [![btn_donate_LG.gif](https://bitbucket.org/repo/jxX7Lj/images/1283204942-btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KG4H9QT3MSDN8)
 
 
-Copyright (c) 2009 - 2023 Spring4D Team
+Copyright (c) 2009 - 2024 Spring4D Team
